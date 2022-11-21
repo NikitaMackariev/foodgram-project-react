@@ -19,7 +19,7 @@ def shopping_list(request, pk):
             for ingredient in recipe_ingredients:
                 shopping_list.append(
                     f'{ingredient.recipe}: {ingredient.ingredient.name}'
-                    f' - {ingredient.total}'
+                    f' - {ingredient.amount}'
                 )
         print(shopping_list)
         file = ContentFile('/n'.join(shopping_list))
