@@ -15,14 +15,12 @@ from users.models import User, Follow
 
 class PasswordSerializer(serializers.Serializer):
     """Сериализатор обновления пароля."""
-
     new_password = serializers.CharField(max_length=150)
     current_password = serializers.CharField(max_length=150)
 
 
 class UserSerializer(serializers.ModelSerializer):
     """Сериализатор пользователя."""
-
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
@@ -48,7 +46,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UserCreateSerializer(serializers.ModelSerializer):
     """Сериализатор создания пользователя."""
-
     class Meta:
         model = User
         fields = [
@@ -69,7 +66,6 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
 class TagSerializer(serializers.ModelSerializer):
     """Сериализатор тэгов."""
-
     color = Hex2NameColor()
 
     class Meta:
@@ -82,7 +78,6 @@ class TagSerializer(serializers.ModelSerializer):
 
 class IngredientSerializer(serializers.ModelSerializer):
     """Сериализатор ингредиетов."""
-
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
@@ -93,7 +88,6 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
     """Сериализатор ингредиентов в рецепте."""
-
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
     name = serializers.ReadOnlyField(source='ingredient.name')
 
@@ -104,7 +98,6 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
 class RecipeViewSerializer(serializers.ModelSerializer):
     """Сериализатор рецептов."""
-
     ingredients = serializers.SerializerMethodField(read_only=True)
     tags = TagSerializer(read_only=True, many=True)
     author = UserSerializer(read_only=True)
@@ -162,7 +155,6 @@ class RecipeWriteSerializer(
     serializers.ModelSerializer
 ):
     """Сериализатор добавления/обновления рецептов."""
-
     ingredients = RecipeIngredientSerializer(many=True)
     tags = serializers.PrimaryKeyRelatedField(
         many=True,
@@ -255,7 +247,6 @@ class ShoppingCartCreateSerializer(serializers.ModelSerializer):
 
 class FollowSerializer(serializers.ModelSerializer):
     """Сериализатор подписки."""
-
     is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()

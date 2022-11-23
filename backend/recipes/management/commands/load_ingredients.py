@@ -1,4 +1,4 @@
-import csv
+from csv import DictReader
 
 from django.core.management.base import BaseCommand
 
@@ -9,13 +9,20 @@ class Command(BaseCommand):
     help = 'Загружает ингредиенты из csv-файла /data/ingredients.csv'
 
     def handle(self, *args, **options):
-
-        print('Loading ingredients from csv ... ', end='')
-        with open('../data/ingredients.csv') as csvfile:
-            reader = csv.reader(csvfile)
+        if Ingredient.objects.exists():
+            print('The ingredients have already been uploaded to the database')
+            return
+        print('Uploading ingredients to the database')
+        try:
+            reader = DictReader(open('../data/ingredients.csv'))
+        except Exception:
+            FileNotFoundError("Can't open file")
+        try:
             for row in reader:
                 Ingredient(
                     name=row[0],
                     measurement_unit=row[1],
                 ).save()
             print('Done')
+        except Exception:
+            AttributeError("Can't save ingredient")

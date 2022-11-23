@@ -39,7 +39,6 @@ from users.models import Follow, User
 
 class UserViewSet(CustomUserViewSet):
     """API пользователя."""
-
     queryset = User.objects.all()
     serializer_class = UserSerializer
     pagination_class = SixPagination
@@ -108,7 +107,6 @@ class UserViewSet(CustomUserViewSet):
 
 class FollowViewSet(viewsets.ViewSet):
     """API подписки."""
-
     permission_classes = (permissions.IsAuthenticated,)
 
     def create(self, request, user_id):
@@ -149,7 +147,6 @@ class FollowViewSet(viewsets.ViewSet):
 
 class TagViewSet(ReadOnlyModelViewSet):
     """API тэгов."""
-
     queryset = Tag.objects.all()
     pagination_class = None
     serializer_class = TagSerializer

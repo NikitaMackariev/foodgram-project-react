@@ -12,7 +12,6 @@ from users.models import User
 
 class IngredientSearchFilter(FilterSet):
     """Фильтрсет ингредиентов."""
-
     name = CharFilter(lookup_expr='istartswith')
 
     class Meta:
@@ -22,7 +21,6 @@ class IngredientSearchFilter(FilterSet):
 
 class RecipeSearchFilter(FilterSet):
     """Фильтрсет рецептов."""
-
     is_favorited = BooleanFilter(method='filter_is_favorited')
     is_in_shopping_cart = BooleanFilter(method='filter_is_in_shopping_cart')
     tags = AllValuesMultipleFilter(field_name='tags__slug')

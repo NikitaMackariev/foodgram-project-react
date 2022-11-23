@@ -6,7 +6,6 @@ from .models import Follow, User
 
 class UserAdmin(UserAdmin):
     """Админ-панель пользователя."""
-
     list_display = (
         'username',
         'first_name',
@@ -20,7 +19,6 @@ class UserAdmin(UserAdmin):
 
 class FollowAdmin(admin.ModelAdmin):
     """Админ-панель подписки."""
-
     list_display = (
         'user',
         'author'
