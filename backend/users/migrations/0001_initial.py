@@ -5,7 +5,6 @@ import django.contrib.auth.models
 from django.db import migrations, models
 import django.db.models.deletion
 import django.utils.timezone
-import users.validators
 
 
 class Migration(migrations.Migration):
@@ -26,7 +25,7 @@ class Migration(migrations.Migration):
                 ('is_staff', models.BooleanField(default=False, help_text='Designates whether the user can log into this admin site.', verbose_name='staff status')),
                 ('is_active', models.BooleanField(default=True, help_text='Designates whether this user should be treated as active. Unselect this instead of deleting accounts.', verbose_name='active')),
                 ('date_joined', models.DateTimeField(default=django.utils.timezone.now, verbose_name='date joined')),
-                ('username', models.CharField(max_length=150, unique=True, validators=[users.validators.validate_username], verbose_name='Логин')),
+                ('username', models.CharField(max_length=150, unique=True, verbose_name='Логин')),
                 ('first_name', models.CharField(max_length=150, verbose_name='Имя')),
                 ('last_name', models.CharField(max_length=150, verbose_name='Фамилия')),
                 ('email', models.EmailField(max_length=254, unique=True, verbose_name='Электронная почта')),
