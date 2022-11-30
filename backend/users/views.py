@@ -1,3 +1,6 @@
+from api.paginator import SixPagination
+from api.permissions import UserPermission
+from api.serializers import UserWithRecipesSerializer
 from django.contrib.auth.hashers import check_password
 from django.shortcuts import get_object_or_404
 from djoser.views import TokenCreateView, UserViewSet
@@ -6,14 +9,10 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
-from api.paginator import SixPagination
-from api.permissions import UserPermission
-from api.serializers import UserWithRecipesSerializer
 from .serializers import (
     PasswordSerializer,
     UserSerializer
 )
-
 from .models import Follow, User
 
 USER_BLOCKED = 'Аккаунт не активен!'
