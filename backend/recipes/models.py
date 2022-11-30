@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MinValueValidator
 
 from users.models import User
 
@@ -41,6 +41,11 @@ class Ingredient(models.Model):
         verbose_name='Единицы измерения ингредиента',
         max_length=50
     )
+    amount = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Количество'
+    )
 
     class Meta:
         verbose_name = 'Ингредиент'
@@ -71,9 +76,8 @@ class Recipe(models.Model):
         help_text='Текстовое описание рецепта'
     )
     ingredients = models.ManyToManyField(
-        Ingredient,
-        related_name='recipes',
-        verbose_name='Ингредиенты рецепта'
+        'Ingredient', through='RecipeIngredient',
+        verbose_name='Ингридиенты'
     )
     tags = models.ManyToManyField(
         Tag,
@@ -99,20 +103,22 @@ class Recipe(models.Model):
 
 class RecipeIngredient(models.Model):
     """Модель ингредиентов в рецепте."""
-
     recipe = models.ForeignKey(
-        Recipe, on_delete=models.CASCADE, verbose_name='Рецепт',
+        Recipe,
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
+        related_name='recipe_ingredient_related'
     )
     ingredient = models.ForeignKey(
-        Ingredient, on_delete=models.CASCADE, verbose_name='Ингредиент',
+        'Ingredient',
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
+        related_name='recipes'
     )
-    amount = models.DecimalField(
-        max_digits=30,
-        decimal_places=1,
+    amount = models.PositiveSmallIntegerField(
         verbose_name='Количество',
-        validators=[
-            MaxValueValidator(10),
-            MinValueValidator(0.1)]
     )
 
     class Meta:
@@ -153,13 +159,13 @@ class Favorite(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='favorite_recipes',
+        related_name='favorite',
         verbose_name='Автор'
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='favorite_recipes',
+        related_name='favorite',
         verbose_name='Избранный рецепт'
     )
 

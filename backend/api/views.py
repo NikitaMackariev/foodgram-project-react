@@ -1,5 +1,6 @@
+import sys
+
 from django.shortcuts import get_object_or_404
-from django.db import transaction
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -8,7 +9,7 @@ from rest_framework import status, permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework.views import APIView
 
 from .filtersets import IngredientSearchFilter, RecipeSearchFilter
@@ -21,7 +22,6 @@ from .serializers import (
     RecipeViewSerializer,
     RecipeWriteSerializer,
     ShoppingCartSerializer,
-    ShortRecipeSerializer,
     TagSerializer,
 )
 from recipes.models import (
@@ -67,9 +67,8 @@ class SubscribeViewSet(viewsets.ViewSet):
         if data_follow.exists():
             data_follow.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            return Response(data='Вы не подписаны на данного автора.',
-                            status=status.HTTP_400_BAD_REQUEST)
+        return Response(data='Вы не подписаны на данного автора.',
+                        status=status.HTTP_400_BAD_REQUEST)
 
 
 class TagViewSet(ReadOnlyModelViewSet):
@@ -81,7 +80,6 @@ class TagViewSet(ReadOnlyModelViewSet):
 
 class IngredientViewSet(ReadOnlyModelViewSet):
     """API ингредиентов."""
-
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
@@ -89,11 +87,10 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     filterset_class = IngredientSearchFilter
 
 
-class RecipeViewSet(ModelViewSet):
-    """API рецептов."""
-
-    queryset = Recipe.objects.all()
-    permission_classes = [IsAuthorOrReadOnly]
+class RecipeViewSet(viewsets.ModelViewSet):
+    """API рецептов"""
+    queryset = Recipe.objects.all().order_by('-id')
+    permission_classes = (IsAuthorOrReadOnly,)
     pagination_class = SixPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeSearchFilter
@@ -103,7 +100,10 @@ class RecipeViewSet(ModelViewSet):
             return RecipeViewSerializer
         return RecipeWriteSerializer
 
-    def list(self, request, *args, **kwargs):
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+    def add_to_list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 
         page = self.paginate_queryset(queryset)
@@ -118,17 +118,8 @@ class RecipeViewSet(ModelViewSet):
         )
         return Response(serializer.data)
 
-    @transaction.atomic
-    def create_instance(self, author, recipe_id, model):
-        serializer_obj = Recipe.objects.get(pk=recipe_id)
-        serializer = ShortRecipeSerializer(instance=serializer_obj)
-        return Response(
-            data=serializer.data,
-            status=status.HTTP_201_CREATED,
-        )
-
-    def delete_instance(self, author, recipe_id, model):
-        model.objects.get(author=author, recipe_id=recipe_id).delete()
+    def remove_from_list(self, model, user, recipe_id):
+        model.objects.get(user=user, recipe_id=recipe_id).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
@@ -156,7 +147,11 @@ class RecipeViewSet(ModelViewSet):
                     f'{ingredient.recipe}: {ingredient.ingredient.name}'
                     f' - {ingredient.amount}\n'
                 )
-        f = open('shopping_cart.txt', 'w')
+        try:
+            f = open('shopping_cart.txt', 'w')
+        except OSError:
+            print('Could not open/read file:', 'shopping_cart.txt')
+            sys.exit()
         for shopping in shopping_list:
             f.write(shopping)
         f.close()

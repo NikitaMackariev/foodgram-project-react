@@ -1,6 +1,11 @@
-from rest_framework import serializers
+from django.contrib.auth import get_user_model
 
-from users.models import User, Follow
+from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
+
+from users.models import Follow
+
+User = get_user_model()
 
 
 class PasswordSerializer(serializers.Serializer):
@@ -34,42 +39,27 @@ class UserSerializer(serializers.ModelSerializer):
         return False
 
 
-class UserCreateSerializer(serializers.ModelSerializer):
-    """Сериализатор создания пользователя."""
+class CreateUserSerializer(serializers.ModelSerializer):
+    """Сериализатор для создания пользователя"""
+    email = serializers.EmailField(
+        validators=[UniqueValidator(queryset=User.objects.all())])
+    username = serializers.CharField(
+        validators=[UniqueValidator(queryset=User.objects.all())])
+
     class Meta:
         model = User
-        fields = [
-            'first_name',
-            'username',
-            'last_name',
-            'email',
-            'password',
-            'id',
-        ]
+        fields = (
+            'email', 'id', 'password', 'username', 'first_name', 'last_name')
+        extra_kwargs = {
+            'email': {'required': True},
+            'username': {'required': True},
+            'password': {'write_only': True},
+            'first_name': {'required': True},
+            'last_name': {'required': True},
+        }
 
     def create(self, validated_data):
         user = User.objects.create(**validated_data)
         user.set_password(validated_data['password'])
         user.save()
         return user
-
-
-class GetTokenSerializer(serializers.Serializer):
-    """
-    Сериализатор для обработки запросов на получение токена.
-    """
-    email = serializers.EmailField(max_length=254)
-    password = serializers.CharField(max_length=128)
-
-    def validate(self, data):
-        try:
-            user = User.objects.get(email=data['email'])
-        except User.DoesNotExist:
-            raise serializers.ValidationError(
-                'Предоставлен email незарегистрированного пользователя.'
-            )
-        if user.check_password(data['password']):
-            return data
-        raise serializers.ValidationError(
-            'Неверный пароль для пользователя с указанным email.'
-        )

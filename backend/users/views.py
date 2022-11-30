@@ -1,31 +1,30 @@
 from django.contrib.auth.hashers import check_password
 from django.shortcuts import get_object_or_404
 
+from djoser.views import TokenCreateView, UserViewSet
 
 from rest_framework import status, permissions
-from rest_framework.authtoken.models import Token
-from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from api.paginator import SixPagination
 from api.permissions import UserPermission
 from api.serializers import UserWithRecipesSerializer
 from .serializers import (
-    GetTokenSerializer,
     PasswordSerializer,
     UserSerializer
 )
 
 from .models import Follow, User
-from .mixins import CustomUserViewSet
+
+USER_BLOCKED = 'Аккаунт не активен!'
 
 
-class UserViewSet(CustomUserViewSet):
+class UserViewSet(UserViewSet):
     """API пользователя."""
-    queryset = User.objects.all()
+    queryset = User.objects.all().prefetch_related('recipes')
     serializer_class = UserSerializer
     pagination_class = SixPagination
     permission_classes = (UserPermission,)
@@ -92,39 +91,13 @@ class UserViewSet(CustomUserViewSet):
         return Response(serializer.data)
 
 
-class GetTokenView(ObtainAuthToken):
-    """API получения токена."""
-    name = 'Получение токена'
-    description = 'Получение токена'
-    permission_classes = (AllowAny,)
+class TokenCreateNonBlockedUserView(TokenCreateView):
+    permission_classes = (AllowAny, )
 
-    def post(self, request):
-        serializer = GetTokenSerializer(data=request.data)
-        if serializer.is_valid():
-            user = get_object_or_404(
-                User, email=serializer.validated_data['email']
-            )
-            token, created = Token.objects.get_or_create(user=user)
+    def _action(self, serializer):
+        if serializer.user.is_not_active:
             return Response(
-                {
-                    'auth_token': token.key
-                },
-                status=status.HTTP_201_CREATED
+                {'errors': USER_BLOCKED},
+                status=HTTP_400_BAD_REQUEST,
             )
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
-
-class DelTokenView(APIView):
-    name = 'Удаление токена'
-    description = 'Удаление токена'
-    permission_classes = (IsAuthenticated,)
-
-    def post(self, request):
-        token = request.auth
-        token.delete()
-        return Response(
-            status=status.HTTP_204_NO_CONTENT
-        )
+        return super()._action(serializer)

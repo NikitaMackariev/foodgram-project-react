@@ -1,9 +1,11 @@
 from django.urls import include, path
 
+from djoser.views import TokenDestroyView
+
 from rest_framework.routers import DefaultRouter
 
-from users.views import (GetTokenView, DelTokenView,
-                         UserViewSet)
+from users.views import (UserViewSet,
+                         TokenCreateNonBlockedUserView)
 
 app_name = 'users'
 
@@ -14,12 +16,8 @@ urlpatterns = [
     path('', include(router.urls)),
     path(
         'auth/token/login/',
-        GetTokenView.as_view(),
-        name='token_login'
+        TokenCreateNonBlockedUserView.as_view(), name='login'
     ),
-    path(
-        'auth/token/logout/',
-        DelTokenView.as_view(),
-        name='token_logout'
-    ),
+    path('auth/token/logout/', TokenDestroyView.as_view(), name='logout'),
+    path('', include('djoser.urls')),
 ]

@@ -10,6 +10,11 @@ from recipes.models import (
 )
 
 
+class IngredientInline(admin.TabularInline):
+    model = RecipeIngredient
+    extra = 1
+
+
 class IngredientAdmin(admin.ModelAdmin):
     """Админ-панель ингредиентов."""
     list_display = ('name', 'measurement_unit')
@@ -20,6 +25,7 @@ class IngredientAdmin(admin.ModelAdmin):
 
 class RecipeAdmin(admin.ModelAdmin):
     """Админ-панель рецептов."""
+    inlines = (IngredientInline,)
     list_display = ('author', 'name', 'favorites')
     search_fields = ('author',)
     list_filter = ('author', 'name', 'tags')
