@@ -1,11 +1,9 @@
 from django.urls import include, path
-
 from djoser.views import TokenDestroyView
-
 from rest_framework.routers import DefaultRouter
+from .views import (TokenCreateNonBlockedUserView,
+                    UserViewSet)
 
-from users.views import (UserViewSet,
-                         TokenCreateNonBlockedUserView)
 
 app_name = 'users'
 

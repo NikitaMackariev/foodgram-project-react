@@ -1,8 +1,6 @@
 from django.contrib.auth import get_user_model
-
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-
 from users.models import Follow
 
 User = get_user_model()
@@ -34,7 +32,7 @@ class UserSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request.user.is_anonymous:
             return False
-        elif Follow.objects.filter(user=request.user, author=obj).exists():
+        if Follow.objects.filter(user=request.user, author=obj).exists():
             return True
         return False
 
