@@ -11,7 +11,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['localhost']
 
 STATIC_ROOT = '/app/backend_static'
 
@@ -19,7 +19,7 @@ STATIC_URL = '/static/'
 
 MEDIA_URL = '/media_backend/'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = '/app/backend_media/'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
