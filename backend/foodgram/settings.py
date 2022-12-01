@@ -19,7 +19,7 @@ STATIC_URL = '/static/'
 
 MEDIA_URL = '/media_backend/'
 
-MEDIA_ROOT = '/app/backend_media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 INSTALLED_APPS = [
     'django.contrib.admin',

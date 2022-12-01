@@ -1,7 +1,7 @@
 from django.urls import include, path
 from djoser.views import TokenDestroyView
 from rest_framework.routers import DefaultRouter
-from .views import (TokenCreateNonBlockedUserView, UserViewSet)
+from .views import TokenCreateNonBlockedUserView, UserViewSet
 
 
 app_name = 'users'
