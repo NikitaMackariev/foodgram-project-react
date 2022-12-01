@@ -9,9 +9,9 @@ services:
       - ./.env
 
   backend:
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
+    image: mackariev/foodgram_backend:latest
+    expose:
+      - 8000
     restart: always
     volumes:
       - static_value:/app/backend_static/
@@ -22,9 +22,7 @@ services:
       - ./.env
 
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: mackariev/foodgram_frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
