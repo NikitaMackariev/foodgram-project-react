@@ -101,7 +101,7 @@ class RecipeViewSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request.user.is_anonymous:
             return False
-        elif ShoppingCart.objects.filter(
+        if ShoppingCart.objects.filter(
             author=request.user, recipe=obj
         ).exists():
             return True
@@ -232,11 +232,9 @@ class UserWithRecipesSerializer(serializers.ModelSerializer):
             return False
         if hasattr(obj, 'author'):
             return Follow.objects.filter(
-                user=request.user, author=obj.author
-            ).exists()
+                user=request.user, author=obj.author).exists()
         return Follow.objects.filter(
-                user=request.user, author=obj
-            ).exists()
+            user=request.user, author=obj).exists()
 
     def get_recipes(self, obj):
         request = self.context.get('request')

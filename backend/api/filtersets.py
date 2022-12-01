@@ -5,7 +5,6 @@ from django_filters.rest_framework.filters import (
     CharFilter,
     ModelChoiceFilter
 )
-
 from recipes.models import Ingredient, Recipe
 from users.models import User
 
