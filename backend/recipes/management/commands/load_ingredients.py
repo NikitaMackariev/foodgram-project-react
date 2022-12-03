@@ -10,7 +10,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         print('Uploading ingredients to the database ... ', end='')
         try:
-            with open('../data/ingredients.csv') as csvfile:
+            with open('./recipes/data/ingredients.csv') as csvfile:
                 reader = csv.reader(csvfile)
                 for row in reader:
                     Ingredient(
