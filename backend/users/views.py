@@ -1,19 +1,18 @@
-from api.paginator import SixPagination
-from api.permissions import UserPermission
-from api.serializers import UserWithRecipesSerializer
 from django.contrib.auth.hashers import check_password
 from django.shortcuts import get_object_or_404
 from djoser.views import TokenCreateView, UserViewSet
 from rest_framework import permissions, status
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-from .models import Follow, User
-from .serializers import (
-    UserSerializer,
-    PasswordSerializer)
+from api.paginator import SixPagination
+from api.permissions import UserPermission
+
+from .models import User
+from .serializers import (PasswordSerializer, SubscriptionSerializer,
+                          UserSerializer, UserSubscriptionSerializer)
 
 USER_BLOCKED = 'Аккаунт не активен!'
 
@@ -59,32 +58,17 @@ class UserViewSet(UserViewSet):
         detail=False,
         methods=['GET'],
         url_path='subscriptions',
-        permission_classes=(permissions.IsAuthenticated,),
+        permission_classes=[IsAuthenticated]
     )
     def subscriptions(self, request):
-        queryset = User.objects.filter(
-            id__in=Follow.objects.filter(user=request.user).values_list(
-                'author_id', flat=True
-            )
-        )
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = UserWithRecipesSerializer(
-                page,
-                many=True,
-                context={
-                    'request': request,
-                },
-            )
-            return self.get_paginated_response(serializer.data)
-        serializer = UserWithRecipesSerializer(
-            queryset,
+        follower_queryset = request.user.follower.all()
+        paginated_queryset = self.paginate_queryset(follower_queryset)
+        serializer = UserSubscriptionSerializer(
+            paginated_queryset,
             many=True,
-            context={
-                'request': request,
-            },
+            context={'request': self.request}
         )
-        return Response(serializer.data)
+        return self.get_paginated_response(serializer.data)
 
 
 class TokenCreateNonBlockedUserView(TokenCreateView):
@@ -97,3 +81,32 @@ class TokenCreateNonBlockedUserView(TokenCreateView):
                 status=HTTP_400_BAD_REQUEST,
             )
         return super()._action(serializer)
+
+
+class SubscriptionViewSet(UserViewSet):
+    """API подписок."""
+    @action(
+        methods=['POST'],
+        detail=True,
+        permission_classes=[IsAuthenticated]
+    )
+    def subscribe(self, request, id):
+        serializer = SubscriptionSerializer(
+            data={'author': id, 'user': request.user.id},
+            context={'request': self.request, 'action': 'subscribe'}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=request.user)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED
+        )
+
+    @subscribe.mapping.delete
+    def subscribe_delete(self, request, id):
+        get_object_or_404(User, pk=id)
+        serializer = SubscriptionSerializer(
+            data={'author': id, 'user': request.user.id},
+            context={'request': self.request, 'action': 'unsubscribe'}
+        )
+        serializer.is_valid(raise_exception=True)
+        return Response(status=status.HTTP_204_NO_CONTENT)

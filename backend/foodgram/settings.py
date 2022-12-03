@@ -11,7 +11,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['51.250.20.4', 'localhost']
+ALLOWED_HOSTS = ['158.160.9.220']
 
 STATIC_ROOT = '/app/backend_static'
 
