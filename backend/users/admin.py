@@ -7,6 +7,18 @@ from recipes.models import Favorite, ShoppingCart
 from .models import Follow, User
 
 
+class FavoriteRecipeInline(admin.TabularInline):
+    """Избранные рецепты пользователя."""
+    model = Favorite
+    extra = 1
+
+
+class ShoppingCartInline(admin.TabularInline):
+    """Избранные рецепты пользователя."""
+    model = ShoppingCart
+    extra = 1
+
+
 class UserAdmin(UserAdmin):
     """Админ-панель пользователя."""
     list_display = (
@@ -20,6 +32,7 @@ class UserAdmin(UserAdmin):
     list_filter = ('email', 'username')
     search_fields = ('username',)
     empty_value_display = '-пусто-'
+    inlines = (FavoriteRecipeInline, ShoppingCartInline)
 
     def favorite(self, obj):
         from django.utils.html import format_html
