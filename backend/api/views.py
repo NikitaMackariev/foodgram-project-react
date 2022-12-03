@@ -123,7 +123,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[IsAuthenticated]
     )
     def favorite(self, request, pk):
-        """Метод добавления/удаления рецепта из избранного"""
         recipe = get_object_or_404(Recipe, id=pk)
         if request.method == 'POST':
             return self.add_to_list(

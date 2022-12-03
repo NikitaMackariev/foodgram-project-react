@@ -39,7 +39,6 @@ class User(AbstractUser):
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
-    # related name для модели CustomUser 'auth_token'
     if created:
         Token.objects.create(user=instance)
 

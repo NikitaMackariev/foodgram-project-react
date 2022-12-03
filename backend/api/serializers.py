@@ -30,8 +30,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class WriteRecipeIngredienSerializer(serializers.ModelSerializer):
-    """Сериализатор определения ингредиентов в рецепте"""
-
+    """Сериализатор определения ингредиентов в рецепте."""
     id = serializers.IntegerField()
     amount = serializers.IntegerField()
 
@@ -41,7 +40,7 @@ class WriteRecipeIngredienSerializer(serializers.ModelSerializer):
 
 
 class ReadRecipeIngredienSerializer(serializers.ModelSerializer):
-    """Сериализатор отображения ингредиентов в рецепте"""
+    """Сериализатор отображения ингредиентов в рецепте."""
 
     id = serializers.SerializerMethodField()
     name = serializers.SerializerMethodField()
@@ -175,12 +174,12 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
         if action == 'remove':
             if not recipe_in_sh_cart:
                 raise serializers.ValidationError(
-                    detail='Данного рецепта нет в списке покупок')
+                    detail='Данного рецепта нет в списке покупок.')
             recipe_in_sh_cart.delete()
         elif action == 'add':
             if recipe_in_sh_cart:
                 raise serializers.ValidationError(
-                    detail='Рецепт уже в списке покупок')
+                    detail='Рецепт уже добавлен в список покупок.')
         return data
 
 
@@ -208,10 +207,10 @@ class FavoriteSerializer(RecipeInListSerializer):
         if action == 'remove':
             if not recipe_in_favorites:
                 raise serializers.ValidationError(
-                    detail='Данного рецепта нет в избранном')
+                    detail='Данного рецепта нет в избранном.')
             recipe_in_favorites.delete()
         elif action == 'add':
             if recipe_in_favorites:
                 raise serializers.ValidationError(
-                    detail='Рецепт уже в избранном')
+                    detail='Рецепт уже добавлен в избранное.')
         return data

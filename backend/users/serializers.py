@@ -64,17 +64,8 @@ class CreateUserSerializer(serializers.ModelSerializer):
         return user
 
 
-class UserSubscriptionSerializer(serializers.ModelSerializer):
-    """Сериализатор определения подписок."""
-    def to_representation(self, instance):
-        request = self.context.get('request')
-        context = {'request': request}
-        return UserSerializer(instance.author, context=context).data
-
-
 class RecipesMiniSerializers(serializers.ModelSerializer):
     """Сериализатор для получения рецепта в подписке."""
-
     class Meta:
         model = Recipe
         fields = (
@@ -145,7 +136,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         author = data['author']
         if user == author:
             raise serializers.ValidationError(
-                'Невозможно подписаться на самого себя')
+                'Подписка на себя невозможна.')
         action = self.context['action']
         user_in_subscription = Follow.objects.filter(
             user=user,
@@ -154,11 +145,11 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         if action == 'subscribe':
             if user_in_subscription:
                 raise serializers.ValidationError(
-                    'Вы уже подписаны на этого пользователя')
+                    'Вы уже подписаны на данного пользователя.')
         elif action == 'unsubscribe':
             if not user_in_subscription:
                 raise serializers.ValidationError(
-                    'Данного пользователя нет в подписках')
+                    'Данного пользователя нет в подписках.')
             user_in_subscription.delete()
         return data
 
