@@ -41,7 +41,6 @@ class WriteRecipeIngredienSerializer(serializers.ModelSerializer):
 
 class ReadRecipeIngredienSerializer(serializers.ModelSerializer):
     """Сериализатор отображения ингредиентов в рецепте."""
-
     id = serializers.SerializerMethodField()
     name = serializers.SerializerMethodField()
     measurement_unit = serializers.SerializerMethodField()
