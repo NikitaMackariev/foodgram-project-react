@@ -9,9 +9,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-from .models import User
+from .models import Follow, User
 from .serializers import (PasswordSerializer, SubscriptionSerializer,
-                          UserSerializer, UserSubscriptionSerializer)
+                          UserSerializer, UserWithRecipesSerializer)
 
 USER_BLOCKED = 'Аккаунт не активен!'
 
@@ -60,14 +60,29 @@ class UserViewSet(UserViewSet):
         permission_classes=[IsAuthenticated]
     )
     def subscriptions(self, request):
-        follower_queryset = request.user.follower.all()
-        paginated_queryset = self.paginate_queryset(follower_queryset)
-        serializer = UserSubscriptionSerializer(
-            paginated_queryset,
-            many=True,
-            context={'request': self.request}
+        queryset = User.objects.filter(
+            id__in=Follow.objects.filter(user=request.user).values_list(
+                'author_id', flat=True
+            )
         )
-        return self.get_paginated_response(serializer.data)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = UserWithRecipesSerializer(
+                page,
+                many=True,
+                context={
+                    'request': request,
+                },
+            )
+            return self.get_paginated_response(serializer.data)
+        serializer = UserWithRecipesSerializer(
+            queryset,
+            many=True,
+            context={
+                'request': request,
+            },
+        )
+        return Response(serializer.data)
 
 
 class TokenCreateNonBlockedUserView(TokenCreateView):
