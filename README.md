@@ -1,7 +1,8 @@
 # Проект: Продуктовый помощник
 
 ## Макарьев Никита
-![workflow](https://github.com/NikitaMackariev/foodgram-project-react/actions/workflows/main.yaml/badge.svg)
+[![Django-app workflow](https://github.com/NikitaMackariev/foodgram-project-react/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/NikitaMackariev/foodgram-project-react/actions/workflows/main.yml)
+
 ***
 ### Техническое описание. ###
 

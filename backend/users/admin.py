@@ -14,7 +14,7 @@ class FavoriteRecipeInline(admin.TabularInline):
 
 
 class ShoppingCartInline(admin.TabularInline):
-    """Избранные рецепты пользователя."""
+    """Список покупок пользователя."""
     model = ShoppingCart
     extra = 1
 
